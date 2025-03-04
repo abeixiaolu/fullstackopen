@@ -4,6 +4,7 @@ import personsService from "./services/persons";
 import Filter from "./components/Filter";
 import AddPersonForm from "./components/AddPersonForm";
 import Persons from "./components/Persons";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -12,9 +13,19 @@ const App = () => {
     number: "",
   });
   const [filter, setFilter] = useState("");
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("success");
   const showList = persons.filter((p) =>
     p.name.toLowerCase().includes(filter.toLowerCase())
   );
+
+  function showMessage(message, msgType = "success") {
+    setMessage(message);
+    setMessageType(msgType);
+    setTimeout(() => {
+      setMessage("");
+    }, 3000);
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -33,6 +44,10 @@ const App = () => {
             name: "",
             number: "",
           });
+          showMessage(`${data.name} updated success!`);
+        })
+        .catch(() => {
+          showMessage(`${name} has already been removed from server`, "error");
         });
       return;
     }
@@ -42,6 +57,7 @@ const App = () => {
         name: "",
         number: "",
       });
+      showMessage(`${data.name} added success!`);
     });
   }
 
@@ -49,8 +65,8 @@ const App = () => {
     const confirmRemove = window.confirm(`Delete ${name} ?`);
     if (!confirmRemove) return;
     personsService.remove(id).then((data) => {
-      console.log(data);
       setPersons(persons.filter((p) => p.id !== id));
+      showMessage(`${data.name} removed success!`);
     });
   }
 
@@ -63,6 +79,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} type={messageType} />
       <Filter filter={filter} setFilter={setFilter} />
       <h4>add a new</h4>
       <AddPersonForm
