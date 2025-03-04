@@ -33,9 +33,9 @@ function Country({ country }) {
 
 function App() {
   const [countries, setCountries] = useState([]);
-  const [show, setShows] = useState([]);
-  const [name, setName] = useState("");
-  const [current, setCurrent] = useState(null);
+  const [shows, setShows] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState(null);
 
   useEffect(() => {
     axios
@@ -48,35 +48,54 @@ function App() {
 
   useEffect(() => {
     const shows = countries.filter((c) =>
-      c.name.common.toLowerCase().includes(name.toLowerCase())
+      c.name.common.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setShows(shows);
     if (shows.length === 1) {
-      setCurrent(shows[0]);
+      setSelectedCountry(shows[0]);
     } else {
-      setCurrent(null);
+      setSelectedCountry(null);
     }
-  }, [name, countries, setShows]);
-  const showCountriesCount = show.length;
+  }, [searchQuery, countries]);
+  const showCountriesCount = shows.length;
+  /**
+   * 渲染国家列表
+   * @returns {JSX.Element|null} 国家列表组件或null
+   */
+  const renderCountryList = () => {
+    // 没有搜索查询时不显示任何内容
+    if (!searchQuery) {
+      return null;
+    }
+
+    // 匹配国家过多时显示提示信息
+    if (showCountriesCount > 10) {
+      return <p>Too many matches, specify another filter</p>;
+    }
+
+    // 匹配国家数量适中时显示列表
+    if (showCountriesCount > 1 && showCountriesCount < 10) {
+      return (
+        <ul>
+          {shows.map((c) => (
+            <li key={c.cca2}>
+              {c.name.common}
+              <button onClick={() => setSelectedCountry(c)}>show</button>
+            </li>
+          ))}
+        </ul>
+      );
+    }
+
+    // 当只有一个国家匹配或没有匹配时，不显示列表
+    return null;
+  };
+
   return (
     <div>
-      <Filter name={name} setName={setName} />
-      {!name ? null : showCountriesCount > 10 ? (
-        <p>Too many matches, specify another filter</p>
-      ) : (
-        showCountriesCount < 10 &&
-        showCountriesCount > 1 && (
-          <ul>
-            {show.map((c) => (
-              <li key={c.cca2}>
-                {c.name.common}
-                <button onClick={() => setCurrent(c)}>show</button>
-              </li>
-            ))}
-          </ul>
-        )
-      )}
-      <Country country={current} />
+      <Filter name={searchQuery} setName={setSearchQuery} />
+      {renderCountryList()}
+      <Country country={selectedCountry} />
     </div>
   );
 }
