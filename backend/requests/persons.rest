@@ -2,18 +2,18 @@
 GET http://localhost:3001/api/persons
 
 ### Get a single person
-GET http://localhost:3001/api/persons/1
+GET http://localhost:3001/api/persons/67cc4088f2a25964f11a5e11
 
 ### Delete a person
-DELETE http://localhost:3001/api/persons/1
+DELETE http://localhost:3001/api/persons/67cc49b11d3e60a0ac962104
 
 ### Create a new person
 POST http://localhost:3001/api/persons
 Content-Type: application/json
 
 {
-  "name": "John Doe",
-  "number": "1234567890"
+  "name": "Ming",
+  "number": "010-12345678"
 }
 
 ### Get info
